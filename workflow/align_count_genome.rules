@@ -63,7 +63,7 @@ if end == "pair":
             reverse = intermediate_path + "/reads/{sample}_reverse.fastq.gz"
         output:
             sam = temp(intermediate_path + "/samFile/{sample}.sam"),
-            bam = temp(intermediate_path + "/bamFile/{sample}.bam")
+            bam = intermediate_path + "/bamFile/{sample}.bam"
         params:
             index = intermediate_path + "/indexes/index"
         benchmark:
@@ -79,7 +79,7 @@ else:
             forward = intermediate_path + "/reads/{sample}.fastq.gz"
         output:
             sam = temp(intermediate_path + "/samFile/{sample}.sam"),
-            bam = temp(intermediate_path + "/bamFile/{sample}.bam")
+            bam = intermediate_path + "/bamFile/{sample}.bam"
         params:
             index = intermediate_path + "/indexes/index"
         benchmark:
