@@ -11,7 +11,6 @@ samples = pd.read_csv(config["METAFILE"], sep = '\t', header = 0)['sample']
 final_path = config["FINALOUTPUT"] + "/" + config["PROJECT"] + "/genome"
 alignmentQC = config["alignmentQC"]
 
-
 def checkQC(qsfile):
     with open(qsfile,'r') as f:
         fstrip = f.read().strip()
@@ -58,11 +57,11 @@ rule markDuplicated:
 rule reorderSam:
     input:
         bamMarked = intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam",
-        genome = config["GENOME"]
+        dictionary = config["DICTIONARY"]
     output:
         bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam"
     shell:
-        "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} REFERENCE={input.genome} CREATE_INDEX=TRUE"
+        "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} SEQUENCE_DICTIONARY={input.dictionary}"
 
 rule splitNCigar:
     input:

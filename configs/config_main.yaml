@@ -62,6 +62,7 @@ TRANS: data/example/ref/transcriptome/Homo_sapiens.GRCh38.cdna.all.1.1.10M.fa.gz
 ## genome and annotation files
 GENOME: /mnt/d/Python_projects/ngs2vcf/human_genome/ensembl_100/Homo_sapiens.GRCh38.dna.primary_assembly.fa
 ANNOTATION: /mnt/d/Python_projects/ngs2vcf/human_genome/annotation/Homo_sapiens.GRCh38.100.gtf
+DICTIONARY: /mnt/d/Python_projects/ngs2vcf/human_genome/ensembl_100/Homo_sapiens.GRCh38.dna.primary_assembly.dict
 ATTRIBUTE: gene_id  # the attribute used in annotation file. It's usually "gene_id", but double check that since it may also be "gene", "ID"...
 
 ## aligner
