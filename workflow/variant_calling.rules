@@ -1,0 +1,92 @@
+import pandas as pd
+configfile: "configs/config_main.yaml"
+
+
+output_path = config["FINALOUTPUT"] + "/" + config["PROJECT"] + "/genome/variantCalling"
+intermediate_path = config["OUTPUTPATH"] + "/" + config["PROJECT"] + "/genome"
+
+samples = pd.read_csv(config["METAFILE"], sep = '\t', header = 0)['sample']
+
+
+final_path = config["FINALOUTPUT"] + "/" + config["PROJECT"] + "/genome"
+alignmentQC = config["alignmentQC"]
+
+
+def checkQC(qsfile):
+    with open(qsfile,'r') as f:
+        fstrip = f.read().strip()
+        lastline = fstrip.split("\n")[-1]
+
+        qscore = int(lastline.split()[0])
+
+        return qscore
+
+# TODO - add DNA compatibility
+rule all:
+    input:
+        vcf = expand(output_path + "/vcfFile/{sample}_all.vcf", sample=samples)
+
+rule qualityScore:
+    input:
+        bam = expand(intermediate_path + "/bamFile/{sample}.bam", sample=samples)
+    output:
+        qscores = expand(final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt", sample = samples),
+        chartscores = expand(final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.pdf", sample = samples)
+    shell:
+        "picard QualityScoreDistribution INPUT={input.bam} OUTPUT={output.qscores} CHART={output.chartscores}"
+
+rule addReadGroups:
+    input:
+        bamSort = expand(intermediate_path + "/bamFileSort/{sample}.sort.bam", sample = samples),
+    output:
+        bamSortAdd = expand(intermediate_path + "bamFileSortAdd/{sample}.sort_add.bam", sample = samples),
+    shell:
+        "picard AddOrReplaceReadGroups INPUT={input.bamSort} OUTPUT={output.bamSortAdd} SO=coordinate "
+        "RGID=Label RGLB=Label RGPL=illumina RGPU=Label RGSM=Label"
+
+rule markDuplicated:
+    input:
+        bamSortAdd = expand(intermediate_path + "bamFileSortAdd/{sample}.sort_add.bam", sample = samples)
+    output:
+        bamMarked = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam", sample = samples),
+        bamMarkedMetrics = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.metrics", sample = samples)
+    shell:
+        "picard MarkDuplicates INPUT={input.bamSortAdd} OUTPUT={output.bamMarked} " 
+        "M={output.bamMarkedMetrics} CREATE_INDEX=true"
+
+
+rule reorderSam:
+    input:
+        bamMarked = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam", sample = samples),
+        genome = config["GENOME"]
+    output:
+        bamResorted = expand(intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam", sample = samples)
+    shell:
+        "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} REFERENCE={input.genome} CREATE_INDEX=TRUE"
+
+rule splitNCigar:
+    input:
+        bamResorted = expand(intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam", sample = samples),
+        genome = config["GENOME"],
+        qscore = expand(final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt", sample = samples)
+    output:
+        bamSplitN = expand(intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam", sample = samples)
+    run:
+        if checkQC(input.qscore) >= 59:
+            shell("gatk -T SplitNCigarReads --fix_misencoded_quality_scores -R {input.genome} -I {input.bamResorted} "
+                  "-o {output.bamSplitN} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 --filter_reads_with_N_cigar")
+        else:
+            shell("gatk -T SplitNCigarReads -R {input.genome} -I {input.bamResorted} -o {output.bamSplitN} "
+                  "-rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 --filter_reads_with_N_cigar")
+
+rule variantCalling:
+    input:
+        bamSplitN = expand(intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam",sample=samples),
+        genome = config["GENOME"]
+    output:
+        vcf = expand(output_path + "/vcfFile/{sample}_all.vcf", sample = samples)
+    shell:
+        "gatk -T HaplotypeCaller -R {input.genome} -I {input.bamSplitN} -o {output.vcf}"
+
+
+

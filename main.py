@@ -22,6 +22,10 @@ print("Is trimming required?\n", trim)
 reference = config["REFERENCE"]
 print("Which mapping reference will be used?\n", reference)
 
+## Do you want to do Variant Calling (VC)?
+vc = config["VC"]
+print("Is Variant Calling required?\n", vc)
+
 ## Do you want to do Differential Expression Analysis (DEA)?
 dea = config["DEA"]
 print("Is DEA required?\n", dea)
@@ -92,7 +96,13 @@ else:
         os.system("nice -5 snakemake -s workflow/align_count_genome.rules 2>&1 | tee logs/log_align_count_genome.txt")
         end_time = time.time()
         file_log_time.write("Time of running genome alignment:" + spend_time(start_time, end_time) + "\n")
-
+        if vc:
+            print("Start doing Variant Calling!")
+            start_time = time.time()
+            os.system("nice -5 snakemake -s workflow/variant_calling.rules 2>&1 | tee logs/log_vc.txt")
+            end_time = time.time()
+            file_log_time.write("Time of running Variant Calling:" + spend_time(start_time, end_time) + "\n")
+        print("Variant Calling is done!")
     if dea:
         print("Start doing DEA!")
         if reference == "transcriptome":

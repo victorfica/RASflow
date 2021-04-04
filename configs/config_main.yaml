@@ -1,7 +1,7 @@
 # Please check the parameters, and adjust them according to your circumstance
 
 # Project name
-PROJECT: test
+PROJECT: oncoprecise_test1
 
 # ================== Control of the workflow ==================
 
@@ -9,13 +9,16 @@ PROJECT: test
 QC: no  # "yes" or "no"
 
 ## Do you need to do trimming?
-TRIMMED: no  # "yes" or "no"?
+TRIMMED: yes  # "yes" or "no"?
 
 ## Which mapping reference do you want to use? Genome or transcriptome?
-REFERENCE: transcriptome  # "genome" or "transcriptome"
+REFERENCE: genome  # "genome" or "transcriptome"
+
+## Do you want to do Variant Calling (VC)?
+VC: yes
 
 ## Do you want to do Differential Expression Analysis (DEA)?
-DEA: yes  # "yes" or "no"
+DEA: no  # "yes" or "no"
 
 ## Do you want to visualize the results of DEA?
 VISUALIZE: no  # "yes" or "no"
@@ -26,16 +29,16 @@ VISUALIZE: no  # "yes" or "no"
 KEY: 
 
 ## the path to fastq files
-READSPATH: data/example/fastq_pair
+READSPATH: /mnt/d/Python_projects/ngs2vcf/test/test_seqs
 
 ## the meta file describing the experiment settings
-METAFILE: configs/metadata.tsv
+METAFILE: configs/metadata_oncotest.tsv
 
 ## is the sequencing paired-end or single-end?
 END: pair  # "pair" or "single"
 
 ## number of cores you want to allocate to this workflow
-NCORE: 30  # Use command "getconf _NPROCESSORS_ONLN" to check the number of cores/CPU on your machine
+NCORE: 12  # Use command "getconf _NPROCESSORS_ONLN" to check the number of cores/CPU on your machine
 
 ## paths for intermediate outputs and final outputs
 OUTPUTPATH: data/output # intermediate output. do not upload to github
@@ -57,8 +60,8 @@ TRANS: data/example/ref/transcriptome/Homo_sapiens.GRCh38.cdna.all.1.1.10M.fa.gz
 # ================== Configuration for alignment to genome and feature count ==================
 
 ## genome and annotation files
-GENOME: data/example/ref/genome/Homo_sapiens.GRCh38.dna.chromosome.1.1.10M.fa
-ANNOTATION: data/example/ref/annotation/Homo_sapiens.GRCh38.93.1.1.10M.gtf
+GENOME: /mnt/d/Python_projects/ngs2vcf/human_genome/ensembl_100/Homo_sapiens.GRCh38.dna.primary_assembly.fa
+ANNOTATION: /mnt/d/Python_projects/ngs2vcf/human_genome/annotation/Homo_sapiens.GRCh38.100.gtf
 ATTRIBUTE: gene_id  # the attribute used in annotation file. It's usually "gene_id", but double check that since it may also be "gene", "ID"...
 
 ## aligner
@@ -68,7 +71,7 @@ ALIGNER: hisat2
 COUNTER: featureCounts  # default is "featureCounts", or you may want to use "htseq-count"
 
 ## alignment quality control
-alignmentQC: no  # "yes" or "no" to specify whether you want to do alignment QC
+alignmentQC: yes  # "yes" or "no" to specify whether you want to do alignment QC
 
 # ================== Configuration for DEA ==================
 
@@ -76,11 +79,11 @@ alignmentQC: no  # "yes" or "no" to specify whether you want to do alignment QC
 DEATOOL: edgeR  # "edgeR" or "DESeq2"? DESeq2 is recommended for transcriptome-based and DEA
 
 ## Is your experiment designed in a pair-wise way?
-PAIR: TRUE  # Is this a pair test or not? ("TRUE" or "FALSE")
+PAIR: FALSE  # Is this a pair test or not? ("TRUE" or "FALSE")
 
 ## the comparison(s) you want to do. If multiple comparisons, specify each pair (CONTROL & TREAT) in order respectively
-CONTROL: ["Untreated"]
-TREAT: ["Dexamethasone"]
+CONTROL: ["healthy","healthy","healthy","healthy","healthy","healthy","healthy","healthy","healthy","healthy","healthy","healthy","healthy","healthy"]
+TREAT: ["type1","type2","type3","type4","type5","type6","type7","type8","type9","type10","type11","type12","type13","type14"]
 ## length of 'CONTROL' should agree with that of 'TREAT'
 ## what you fill in there should agree with the "group" column in metadata.tsv
 
