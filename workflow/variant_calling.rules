@@ -39,14 +39,14 @@ rule addReadGroups:
     input:
         bamSort = expand(intermediate_path + "/bamFileSort/{sample}.sort.bam", sample = samples),
     output:
-        bamSortAdd = expand(intermediate_path + "bamFileSortAdd/{sample}.sort_add.bam", sample = samples),
+        bamSortAdd = expand(intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam", sample = samples),
     shell:
         "picard AddOrReplaceReadGroups INPUT={input.bamSort} OUTPUT={output.bamSortAdd} SO=coordinate "
         "RGID=Label RGLB=Label RGPL=illumina RGPU=Label RGSM=Label"
 
 rule markDuplicated:
     input:
-        bamSortAdd = expand(intermediate_path + "bamFileSortAdd/{sample}.sort_add.bam", sample = samples)
+        bamSortAdd = expand(intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam", sample = samples)
     output:
         bamMarked = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam", sample = samples),
         bamMarkedMetrics = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.metrics", sample = samples)
