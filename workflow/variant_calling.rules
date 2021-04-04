@@ -63,6 +63,7 @@ rule reorderSam:
     shell:
         "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} SEQUENCE_DICTIONARY={input.dictionary}"
 
+# TODO - check splitncigar parameters
 rule splitNCigar:
     input:
         bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam",
@@ -72,11 +73,10 @@ rule splitNCigar:
         bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam"
     run:
         if checkQC(input.qscore) >= 59:
-            shell("gatk -T SplitNCigarReads --fix_misencoded_quality_scores -R {input.genome} -I {input.bamResorted} "
-                  "-o {output.bamSplitN} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 --filter_reads_with_N_cigar")
+            shell("gatk SplitNCigarReads -R {input.genome} -I {input.bamResorted} -O {output.bamSplitN}")
         else:
-            shell("gatk -T SplitNCigarReads -R {input.genome} -I {input.bamResorted} -o {output.bamSplitN} "
-                  "-rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 --filter_reads_with_N_cigar")
+            shell("gatk SplitNCigarReads -R {input.genome} -I {input.bamResorted} -O {output.bamSplitN}")
+
 
 rule variantCalling:
     input:
