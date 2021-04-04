@@ -28,28 +28,28 @@ rule all:
 
 rule qualityScore:
     input:
-        bam = expand(intermediate_path + "/bamFile/{sample}.bam", sample=samples)
+        bam = intermediate_path + "/bamFile/{sample}.bam"
     output:
-        qscores = expand(final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt", sample = samples),
-        chartscores = expand(final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.pdf", sample = samples)
+        qscores = final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt",
+        chartscores = final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.pdf"
     shell:
         "picard QualityScoreDistribution INPUT={input.bam} OUTPUT={output.qscores} CHART={output.chartscores}"
 
 rule addReadGroups:
     input:
-        bamSort = expand(intermediate_path + "/bamFileSort/{sample}.sort.bam", sample = samples),
+        bamSort = intermediate_path + "/bamFileSort/{sample}.sort.bam"
     output:
-        bamSortAdd = expand(intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam", sample = samples),
+        bamSortAdd = intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam"
     shell:
         "picard AddOrReplaceReadGroups INPUT={input.bamSort} OUTPUT={output.bamSortAdd} SO=coordinate "
         "RGID=Label RGLB=Label RGPL=illumina RGPU=Label RGSM=Label"
 
 rule markDuplicated:
     input:
-        bamSortAdd = expand(intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam", sample = samples)
+        bamSortAdd = intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam"
     output:
-        bamMarked = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam", sample = samples),
-        bamMarkedMetrics = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.metrics", sample = samples)
+        bamMarked = intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam",
+        bamMarkedMetrics = intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.metrics"
     shell:
         "picard MarkDuplicates INPUT={input.bamSortAdd} OUTPUT={output.bamMarked} " 
         "M={output.bamMarkedMetrics} CREATE_INDEX=true"
@@ -57,20 +57,20 @@ rule markDuplicated:
 
 rule reorderSam:
     input:
-        bamMarked = expand(intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam", sample = samples),
+        bamMarked = intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam",
         genome = config["GENOME"]
     output:
-        bamResorted = expand(intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam", sample = samples)
+        bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam"
     shell:
         "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} REFERENCE={input.genome} CREATE_INDEX=TRUE"
 
 rule splitNCigar:
     input:
-        bamResorted = expand(intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam", sample = samples),
+        bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam",
         genome = config["GENOME"],
-        qscore = expand(final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt", sample = samples)
+        qscore = final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt"
     output:
-        bamSplitN = expand(intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam", sample = samples)
+        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam"
     run:
         if checkQC(input.qscore) >= 59:
             shell("gatk -T SplitNCigarReads --fix_misencoded_quality_scores -R {input.genome} -I {input.bamResorted} "
@@ -81,10 +81,10 @@ rule splitNCigar:
 
 rule variantCalling:
     input:
-        bamSplitN = expand(intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam",sample=samples),
+        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam",
         genome = config["GENOME"]
     output:
-        vcf = expand(output_path + "/vcfFile/{sample}_all.vcf", sample = samples)
+        vcf = output_path + "/vcfFile/{sample}_all.vcf"
     shell:
         "gatk -T HaplotypeCaller -R {input.genome} -I {input.bamSplitN} -o {output.vcf}"
 
