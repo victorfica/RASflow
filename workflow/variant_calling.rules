@@ -78,14 +78,35 @@ rule splitNCigar:
             shell("gatk SplitNCigarReads -R {input.genome} -I {input.bamResorted} -O {output.bamSplitN}")
 
 
-rule variantCalling:
+rule baseRecalibration:
     input:
         bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam",
+        genome = config["GENOME"],
+        dbSNP = config["DB_SNP"]
+    output:
+        recalData = intermediate_path + "/recalData/{sample}.recal_data.table"
+    shell:
+        "gatk BaseRecalibrator -I {input.bamSplitN} -O {output.recalData} -R {input.genome} "
+        "--known-sites {input.dbSNP} --disable-sequence-dictionary-validation true"
+
+rule applyBQSR:
+    input:
+        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam",
+        recalData = intermediate_path + "/recalData/{sample}.recal_data.table"
+    output:
+        bamRecal = final_path + "/bamFileRecal/{sample}.sorted_recal.bam"
+    shell:
+        "gatk ApplyBQSR -I {input.bamSplitN} -O {output.bamRecal} -bqsr {input.recalData}"
+    
+    
+rule variantCalling:
+    input:
+        bamRecal = final_path + "/bamFileRecal/{sample}.sorted_recal.bam",
         genome = config["GENOME"]
     output:
-        vcf = output_path + "/vcfFile/{sample}_all.vcf"
+        vcf = final_path + "/vcfFile/{sample}_all.vcf"
     shell:
-        "gatk -T HaplotypeCaller -R {input.genome} -I {input.bamSplitN} -o {output.vcf}"
+        "gatk HaplotypeCaller -R {input.genome} -I {input.bamRecal} -O {output.vcf}"
 
 
 
