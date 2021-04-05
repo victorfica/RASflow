@@ -23,7 +23,7 @@ def checkQC(qsfile):
 # TODO - add DNA compatibility
 rule all:
     input:
-        vcf = expand(output_path + "/vcfFile/{sample}_all.vcf", sample=samples)
+        vcf = final_path + "/vcfFile/{sample}_all.vcf"
 
 rule qualityScore:
     input:
