@@ -87,7 +87,7 @@ rule baseRecalibration:
         recalData = intermediate_path + "/recalData/{sample}.recal_data.table"
     shell:
         "gatk BaseRecalibrator -I {input.bamSplitN} -O {output.recalData} -R {input.genome} "
-        "--known-sites {input.dbSNP} --disable-sequence-dictionary-validation true"
+        "--known-sites {input.dbSNP}"
 
 rule applyBQSR:
     input:
