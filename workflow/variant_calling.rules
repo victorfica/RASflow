@@ -25,7 +25,7 @@ samples = pd.read_csv(config["METAFILE"], sep = '\t', header = 0)['sample']
 # TODO - add DNA compatibility
 rule all:
     input:
-        vcf = expand(final_path + "/variantCalling/vcfFile/{sample}_all.vcf",sample=samples)
+        vcfFiltered = expand(final_path + "/variantCalling/vcfFiltered/{sample}.variant_filtered.vcf.gz",sample=samples)
 
 # rule qualityScore:
 #     input:
