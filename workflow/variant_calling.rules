@@ -2,7 +2,7 @@ import pandas as pd
 configfile: "configs/config_main.yaml"
 
 # initial bamfiles from previous pipeline
-input_path = config["FINALOUTPUT"] + "/" + config["PROJECT"] + "/genome/bamFileSort"
+input_path = config["OUTPUTPATH"] + "/" + config["PROJECT"] + "/genome/bamFileSort"
 # intermediate outputs
 intermediate_path = config["OUTPUTPATH"] + "/" + config["PROJECT"] + "/genome/variantCalling"
 # final path
