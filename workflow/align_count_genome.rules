@@ -26,8 +26,8 @@ if end == "pair":
             key = key,
             input_path = input_path
         run:
-            shell("scp -i {params.key} {params.input_path}/{wildcards.sample}_*L0*_*R1*.f*q.gz {output.forward}"),
-            shell("scp -i {params.key} {params.input_path}/{wildcards.sample}_*L0*_*R2*.f*q.gz {output.reverse}")
+            shell("scp -i {params.key} {params.input_path}/{wildcards.sample}_L0*_*R1*.f*q.gz {output.forward}"),
+            shell("scp -i {params.key} {params.input_path}/{wildcards.sample}_L0*_*R2*.f*q.gz {output.reverse}")
 
 else:
     rule getReads:
@@ -88,9 +88,9 @@ else:
             shell("hisat2 -p {config[NCORE]} --known-splicesite-infile {input.splicesites} -x {params.index} -U {input.forward} -S {output.sam}")
             shell("samtools view -@ {config[NCORE]} -b -S {output.sam} > {output.bam}")
 
-rule mergeBAM:
-    input:
-        bams = expand(intermediate_path + "/bamFile/{sample}.bam")
+# rule mergeBAM:
+#     input:
+#         bams = expand(intermediate_path + "/bamFile/{sample}.bam")
 
 rule sortBAM:
     input:
