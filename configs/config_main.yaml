@@ -1,7 +1,7 @@
 # Please check the parameters, and adjust them according to your circumstance
 
 # Project name
-PROJECT: oncoprecise_test1
+PROJECT: oncoprecise_data2_2
 
 # ================== Control of the workflow ==================
 
@@ -15,7 +15,7 @@ TRIMMED: yes  # "yes" or "no"?
 REFERENCE: genome  # "genome" or "transcriptome"
 
 ## Do you want to do Variant Calling (VC)?
-VC: yes
+VC: no
 
 ## Do you want to do Differential Expression Analysis (DEA)?
 DEA: no  # "yes" or "no"
@@ -26,13 +26,14 @@ VISUALIZE: no  # "yes" or "no"
 # ================== Shared parameters for some or all of the sub-workflows ==================
 
 ## key file if the data is stored remotely, otherwise leave it tempty
-KEY: 
-
+KEY: /home/vilion/.ssh/id_rsa
+IP: 152.74.100.228
+USERNAME: vfica
 ## the path to fastq files
-READSPATH: /mnt/d/Python_projects/ngs2vcf/test/test_seqs
+READSPATH: /home/alsalas/Genome_Data/Oncoprecise_carrera2/run2
 
 ## the meta file describing the experiment settings
-METAFILE: configs/metadata_oncotest.tsv
+METAFILE: configs/metadata_onco2-2test.tsv
 
 ## is the sequencing paired-end or single-end?
 END: pair  # "pair" or "single"
@@ -75,7 +76,8 @@ alignmentQC: yes  # "yes" or "no" to specify whether you want to do alignment QC
 
 # ================== Configuration for Variant Calling ==================
 DICTIONARY: /mnt/d/Python_projects/ngs2vcf/human_genome/ensembl_100/Homo_sapiens.GRCh38.dna.primary_assembly.dict
-DB_SNP:
+DB_SNP: /home/vfica/human_annotation/1000G_omni2.5.hg38.vcf.gz
+DB_SNP_INDEX : /home/vfica/human_annotation/1000G_omni2.5.hg38.vcf.gz.tbi
 
 # ================== Configuration for DEA ==================
 
