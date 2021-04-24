@@ -67,7 +67,7 @@ if end == "pair":
         params:
             outputpath=intermediate_path
         shell:
-            "trim_galore --fastqc -j 4 --paired --basename {wildcards.sample} -o {params.outputpath} {input.forward} {input.reverse}"
+            "trim_galore --fastqc -j 4 --paired --basename {wildcards.sample}_L{wildcards.lanenum} -o {params.outputpath} {input.forward} {input.reverse}"
             
 else:
     rule getReads:
