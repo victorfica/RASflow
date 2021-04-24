@@ -31,11 +31,11 @@ if end == "pair":
             input_path=input_path
         run:
             if trimmed:
-                shell("scp -i {params.key} {params.username}@{params.ip}:/{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R1.fastq.gz {output.forward}")
-                shell("scp -i {params.key} {params.username}@{params.ip}:/{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R2.fastq.gz {output.reverse}")
-            else:
                 shell("cp {params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R1.fastq.gz {output.forward}")
                 shell("cp {params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R2.fastq.gz {output.reverse}")
+            else:
+                shell("scp -i {params.key} {params.username}@{params.ip}:/{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R1.fastq.gz {output.forward}")
+                shell("scp -i {params.key} {params.username}@{params.ip}:/{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R2.fastq.gz {output.reverse}")
 
 else:
     rule getReads:
