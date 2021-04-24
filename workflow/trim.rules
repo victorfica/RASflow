@@ -54,8 +54,8 @@ if end == "pair":
             username = username,
             input_path = input_path
         run:
-            shell("scp -i {params.key} {params.username}@{params.ip}:{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R1.fastq.gz {output.forward}")
-            shell("scp -i {params.key} {params.username}@{params.ip}:{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R2.fastq.gz {output.reverse}")
+            shell("scp -i {params.key} {params.username}@{params.ip}:/{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R1.fastq.gz {output.forward}")
+            shell("scp -i {params.key} {params.username}@{params.ip}:/{params.input_path}/{wildcards.sample}_L{wildcards.lanenum}_R2.fastq.gz {output.reverse}")
 
     rule trim:
         input:
