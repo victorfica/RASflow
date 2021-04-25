@@ -111,13 +111,13 @@ rule sortBAM:
     input:
         mergedBam = intermediate_path + "/bamFileMerged/{sample}.merged.bam"
     output:
-        sort = intermediate_path + "/bamFileSort/{sample}.merged.sort.bam"
+        sort = intermediate_path + "/bamFileSort/{sample}.sort.bam"
     shell:
         "samtools sort -@ {config[NCORE]} {input.mergedBam} -o {output.sort}"
 
 rule featureCount:
     input:
-        sort = intermediate_path + "/bamFileSort/{sample}.merged.sort.bam",
+        sort = intermediate_path + "/bamFileSort/{sample}.sort.bam",
         annotation = config["ANNOTATION"]
     output:
         count = final_path + "/countFile/{sample}_count.tsv",
@@ -134,7 +134,7 @@ rule featureCount:
 if alignmentQC:
     rule alignmentQC:
         input:
-            sort = intermediate_path + "/bamFileSort/{sample}.merged.sort.bam"
+            sort = intermediate_path + "/bamFileSort/{sample}.sort.bam"
         output:
             bamqc = directory(final_path + "/alignmentQC/{sample}_BAMqc")
         shell:
