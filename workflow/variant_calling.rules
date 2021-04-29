@@ -49,36 +49,36 @@ rule markDuplicated:
     input:
         bamSort = input_path + "/{sample}.sort.bam"
     output:
-        bamMarked = intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam",
-        bamMarkedMetrics = intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.metrics"
+        bamMarked = intermediate_path + "/bamFileMarked/{sample}.dedupped.bam",
+        bamMarkedMetrics = intermediate_path + "/bamFileMarked/{sample}.dedupped.metrics"
     shell:
         "picard MarkDuplicates INPUT={input.bamSort} OUTPUT={output.bamMarked} " 
         "M={output.bamMarkedMetrics} CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT"
 
 
-rule reorderSam:
-    input:
-        bamMarked = intermediate_path + "/bamFileMarked/{sample}.sort_add_mdup.bam",
-        dictionary = config["DICTIONARY"]
-    output:
-        bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam"
-    shell:
-        "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} SEQUENCE_DICTIONARY={input.dictionary}"
+# rule reorderSam:
+#     input:
+#         bamMarked = intermediate_path + "/bamFileMarked/{sample}.dedupped.bam",
+#         dictionary = config["DICTIONARY"]
+#     output:
+#         bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam"
+#     shell:
+#         "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} SEQUENCE_DICTIONARY={input.dictionary}"
 
 rule splitNCigar:
     input:
-        bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam",
+        bamMarked = intermediate_path + "/bamFileMarked/{sample}.dedupped.bam",
         genome = config["GENOME"],
         #qscore = final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt"
     output:
-        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam"
+        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.split.bam"
     shell:
-        "gatk SplitNCigarReads -R {input.genome} -I {input.bamResorted} -O {output.bamSplitN}"
+        "gatk SplitNCigarReads -R {input.genome} -I {input.bamMarked} -O {output.bamSplitN}"
 
 
 rule baseRecalibration:
     input:
-        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam",
+        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.split.bam",
         genome = config["GENOME"],
         dbSNP = config["DB_SNP"]
     output:
@@ -89,11 +89,11 @@ rule baseRecalibration:
 
 rule applyBQSR:
     input:
-        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.sorted_split.bam",
+        bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.split.bam",
         recalData = intermediate_path + "/recalData/{sample}.recal_data.table",
         genome = config["GENOME"]
     output:
-        bamRecal = intermediate_path + "/bamFileRecal/{sample}.sorted_recal.bam"
+        bamRecal = intermediate_path + "/bamFileRecal/{sample}.aligned.duplicates_marked.recalibrated.bam"
     shell:
         "gatk ApplyBQSR --add-output-sam-program-record -R {input.genome} -I {input.bamSplitN} --use-original-qualities "
         "-O {output.bamRecal} --bqsr-recal-file {input.recalData}"
@@ -101,7 +101,7 @@ rule applyBQSR:
     
 rule variantCalling:
     input:
-        bamRecal = intermediate_path + "/bamFileRecal/{sample}.sorted_recal.bam",
+        bamRecal = intermediate_path + "/bamFileRecal/{sample}.aligned.duplicates_marked.recalibrated.bam",
         genome = config["GENOME"]
     output:
         vcf = final_path + "/variantCalling/vcfFile/{sample}_all.vcf.gz"
