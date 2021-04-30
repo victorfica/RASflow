@@ -65,8 +65,8 @@ rule markDuplicated:
 #         bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam"
 #     shell:
 #         "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} SEQUENCE_DICTIONARY={input.dictionary}"
-envvars:
-    "TMP_DIR"
+
+envvars: "TMP_DIR"
 
 rule splitNCigar:
     input:
