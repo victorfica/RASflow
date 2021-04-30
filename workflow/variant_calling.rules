@@ -69,11 +69,12 @@ rule splitNCigar:
     input:
         bamMarked = intermediate_path + "/bamFileMarked/{sample}.dedupped.bam",
         genome = config["GENOME"],
+        tmp_dir = config["TMP_DIR"]
         #qscore = final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt"
     output:
         bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.split.bam"
     shell:
-        "gatk SplitNCigarReads -R {input.genome} -I {input.bamMarked} -O {output.bamSplitN}"
+        "gatk SplitNCigarReads -R {input.genome} -I {input.bamMarked} -O {output.bamSplitN} --tmp-dir {input.tmp_dir}"
 
 
 rule baseRecalibration:
