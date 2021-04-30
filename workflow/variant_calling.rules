@@ -23,9 +23,6 @@ samples = pd.read_csv(config["METAFILE"], sep = '\t', header = 0)['sample']
 #
 #         return qscore
 
-envvars:
-    "TMP_DIR"
-
 # TODO - add DNA compatibility
 rule all:
     input:
@@ -68,6 +65,8 @@ rule markDuplicated:
 #         bamResorted = intermediate_path + "/bamFileResorted/{sample}.resorted_mdup.bam"
 #     shell:
 #         "picard ReorderSam INPUT={input.bamMarked} OUTPUT={output.bamResorted} SEQUENCE_DICTIONARY={input.dictionary}"
+envvars:
+    "TMP_DIR"
 
 rule splitNCigar:
     input:
