@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 configfile: "configs/config_main.yaml"
 
 # initial bamfiles from previous pipeline
@@ -21,6 +22,9 @@ samples = pd.read_csv(config["METAFILE"], sep = '\t', header = 0)['sample']
 #         qscore = int(lastline.split()[0])
 #
 #         return qscore
+
+envvars:
+    "TMP_DIR"
 
 # TODO - add DNA compatibility
 rule all:
@@ -69,12 +73,13 @@ rule splitNCigar:
     input:
         bamMarked = intermediate_path + "/bamFileMarked/{sample}.dedupped.bam",
         genome = config["GENOME"],
-        tmp_dir = config["TMP_DIR"]
         #qscore = final_path + "/alignmentQC/{sample}_PICARDqc/qualityscores.txt"
     output:
         bamSplitN = intermediate_path + "/bamFileSplitN/{sample}.split.bam"
+    params:
+        tmp_dir = os.environ["TMP_DIR"]
     shell:
-        "gatk SplitNCigarReads -R {input.genome} -I {input.bamMarked} -O {output.bamSplitN} --tmp-dir {input.tmp_dir}"
+        "gatk SplitNCigarReads -R {input.genome} -I {input.bamMarked} -O {output.bamSplitN} --tmp-dir {params.tmp_dir}"
 
 
 rule baseRecalibration:
