@@ -37,23 +37,23 @@ rule all:
 #     shell:
 #         "picard QualityScoreDistribution INPUT={input.bam} OUTPUT={output.qscores} CHART={output.chartscores}"
 
-# rule addReadGroups:
-#     input:
-#         bamSort = input_path + "/{sample}.sort.bam"
-#     output:
-#         bamSortAdd = intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam"
-#     shell:
-#         "picard AddOrReplaceReadGroups INPUT={input.bamSort} OUTPUT={output.bamSortAdd} SO=coordinate "
-#         "RGID=Label RGLB=Label RGPL=illumina RGPU=Label RGSM=Label"
+rule addReadGroups:
+    input:
+        bamSort = input_path + "/{sample}.sort.bam"
+    output:
+        bamSortAdd = intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam"
+    shell:
+        "picard AddOrReplaceReadGroups INPUT={input.bamSort} OUTPUT={output.bamSortAdd} SO=coordinate "
+        "RGID=Label RGLB=Label RGPL=illumina RGPU=Label RGSM=Label"
 
 rule markDuplicated:
     input:
-        bamSort = input_path + "/{sample}.sort.bam"
+        bamSortAdd = intermediate_path + "/bamFileSortAdd/{sample}.sort_add.bam"
     output:
         bamMarked = intermediate_path + "/bamFileMarked/{sample}.dedupped.bam",
         bamMarkedMetrics = intermediate_path + "/bamFileMarked/{sample}.dedupped.metrics"
     shell:
-        "picard MarkDuplicates INPUT={input.bamSort} OUTPUT={output.bamMarked} " 
+        "picard MarkDuplicates INPUT={input.bamSortAdd} OUTPUT={output.bamMarked} " 
         "M={output.bamMarkedMetrics} CREATE_INDEX=true VALIDATION_STRINGENCY=SILENT"
 
 
